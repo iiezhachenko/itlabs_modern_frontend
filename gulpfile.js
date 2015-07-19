@@ -160,4 +160,4 @@ gulp.task("cook-js", plugins.sequence('clean-deps-js', 'gather-deps-js', 'js-bui
 gulp.task("cook-css", function(done) {
 	plugins.sequence('clean-deps-less', 'gather-deps-less', 'css-build')(done)
 });
-gulp.task("full-build", plugins.sequence('clean', ['cook-html', 'cook-css', 'cook-js']));
+gulp.task("full-build", plugins.sequence('clean', ['cook-html', 'cook-css', 'cook-js', 'cook-img', 'cook-fonts']));
