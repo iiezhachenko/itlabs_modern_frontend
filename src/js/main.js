@@ -1,2 +1,2 @@
-//= assets/jquery.js
-//= assets/bootstrap.js
+//= ../../bower_components/jquery/dist/jquery.js
+//= ../../bower_components/bootstrap/dist/js/bootstrap.js
