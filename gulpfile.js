@@ -1,8 +1,9 @@
 var gulp = require('gulp'),
-	browserSync = require('browser-sync').create();
-	plugins = require('gulp-load-plugins')({
-		pattern: ['gulp-*', 'gulp.*', 'del', 'merge-stream']
-	});
+    webpack = require('webpack'),
+	webpackConfig = require('./webpack.config.js'),
+    plugins = require('gulp-load-plugins')({
+        pattern: ['gulp-*', 'gulp.*', 'del']
+    });
 
 // Define project PATH variables
 // Using hoisting rules to avoid constraint 
@@ -21,18 +22,6 @@ var PATH = {
 		base: "build"
 	},
 	watch: {}
-};
-
-// Browser sync development server config
-var	browserSyncConfig = {
-	server: {
-		baseDir: "build"
-	},
-	tunnel: "true",
-	host: "localhost",
-	port: 9000,
-	logPrefix: "Modern_FrontEnd",
-	files: PATH.build.base
 };
 
 function cleanUp(path){
@@ -59,6 +48,8 @@ PATH.watch.less = [PATH.src.less + "/**/*.less"];
 PATH.watch.js = [PATH.src.js + "/**/*.js"];
 PATH.watch.img = [PATH.src.img + "/**/*"];
 
+gulp.task("default", ["webpack"]);
+
 gulp.task("cook-html", function() {
 	// Cleanup previous build results
 	cleanUp(PATH.build.html + "/*.html");
@@ -68,57 +59,23 @@ gulp.task("cook-html", function() {
 		.pipe(gulp.dest(PATH.build.html));
 });
 
-gulp.task("cook-fonts", function() {
-	// Cleanup previous build results
-	cleanUp(PATH.build.fonts);
-	// Build main HTML file
-	return gulp.src(PATH.src.bootstrap.fonts)
-		.pipe(gulp.dest(PATH.build.fonts));
-});
-
 gulp.task("cook-img", function() {
-	// Cleanup previous build results
-	cleanUp(PATH.build.img);
-	// Build main HTML file
-	return gulp.src(PATH.src.img + "/*")
-		.pipe(gulp.dest(PATH.build.img));
-});
-
-gulp.task("cook-css", function(){
-    cleanUp(PATH.build.css);
-	gulp.src(PATH.src.less + "/main.less")
-        .pipe(plugins.rigger())
-        .pipe(plugins.debug())
-        .pipe(plugins.less())
-        .pipe(gulp.dest(PATH.build.css));
-});
-
-gulp.task("cook-js", function(){
-    cleanUp(PATH.build.js);
-    gulp.src(PATH.src.js + "/main.js")
-        .pipe(plugins.rigger())
-        .pipe(gulp.dest(PATH.build.js));
-});
-
-gulp.task('watch-n-build', function() {
-	gulp.watch(PATH.watch.html, ['cook-html']);
-	gulp.watch(PATH.watch.less, ['cook-css']);
-	gulp.watch(PATH.watch.js, ['cook-js']);
-	gulp.watch(PATH.watch.img, ['cook-img']);
+    // Cleanup previous build results
+    cleanUp(PATH.build.img);
+    // Build main HTML file
+    return gulp.src(PATH.src.img + "/*")
+        .pipe(gulp.dest(PATH.build.img));
 });
 
 gulp.task('clean', function() {
 	cleanUp(PATH.build.base);
 });
 
-gulp.task("full-build", ["clean", "cook-img", "cook-fonts", "cook-html", "cook-css", "cook-js"]);
-// Start static server
-gulp.task('browser-sync', ["cook-img", "cook-fonts", "cook-html", "cook-css", "cook-js"], function() {
-    browserSync.init(browserSyncConfig);
-
-    plugins.watch(PATH.build.base + "/**/*", {ignoreInitial: false}, function(){
-    	setTimeout(function(){
-	    	browserSync.reload();
-    	}, 2000);
-    });
+gulp.task("webpack", ['clean', 'cook-html', 'cook-img'], function() {
+	// run webpack
+    console.log(webpackConfig.context);
+	webpack(webpackConfig, function(err, stats) {
+		if(err) throw console.log("webpack", err);
+        console.log("[webpack] " + stats.toString({}));
+	});
 });
